@@ -72,7 +72,6 @@ std::vector<CrashRecord> readCSV(const std::string &filename)
         std::vector<std::string> tokens = splitLine(line);
         if (tokens.size() < 29) // Adjust this number based on the number of columns in your CSV
         {
-            std::cerr << "Invalid line: " << line << std::endl;
             continue;
         }
 
