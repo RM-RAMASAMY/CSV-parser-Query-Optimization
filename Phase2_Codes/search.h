@@ -22,7 +22,7 @@ void searchByBorough(const std::string &borough, vector<CrashRecord> &records)
 {
     int recCount = 0;
     std::string searchBorough = trim(borough); // Trim for case-insensitive comparison
-
+#pragma omp parallel for reduction(+ : recCount)
     for (int i = 0; i < records.size(); ++i)
     {
         if (trim(records[i].getPlace().getBorough()) == searchBorough)
