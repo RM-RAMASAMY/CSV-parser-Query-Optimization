@@ -3,8 +3,10 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include <algorithm>
+#include <cctype>
 
-#define MAX_RECORDS 2200 // Set the size for the 2.15 million records
+#define MAX_RECORDS 100000 // Set the size for 100,000 records
 
 class CrashRecord
 {
@@ -16,15 +18,9 @@ public:
     double latitude;
     double longitude;
 
+    // Default constructor (initializes with default values)
     CrashRecord()
-    {
-        crashDate = "";
-        crashTime = "";
-        borough = "";
-        zipCode = 0;
-        latitude = 0.0;
-        longitude = 0.0;
-    }
+        : crashDate(""), crashTime(""), borough(""), zipCode(0), latitude(0.0), longitude(0.0) {}
 
     // Constructor to initialize the class with data
     CrashRecord(const std::string &crashDate, const std::string &crashTime, const std::string &borough,
@@ -44,8 +40,24 @@ public:
     }
 };
 
-// Function to parse the CSV and convert it into an array of CrashRecord objects
-int parseCSV(const std::string &filePath, CrashRecord records[MAX_RECORDS])
+// Helper function to trim leading and trailing spaces
+std::string trim(const std::string &str)
+{
+    size_t first = str.find_first_not_of(" \t");
+    size_t last = str.find_last_not_of(" \t");
+    return str.substr(first, (last - first + 1));
+}
+
+// Helper function to clean up coordinates, removing any unwanted characters
+std::string cleanCoordinate(std::string &coordinate)
+{
+    coordinate.erase(remove(coordinate.begin(), coordinate.end(), '('), coordinate.end());
+    coordinate.erase(remove(coordinate.begin(), coordinate.end(), ')'), coordinate.end());
+    return coordinate;
+}
+
+// Function to parse a chunk of the CSV and convert it into an array of CrashRecord objects
+int parseCSVChunk(const std::string &filePath, CrashRecord records[MAX_RECORDS], int startLine, int maxRecordsToRead)
 {
     int recordCount = 0;
     std::ifstream file(filePath);
@@ -57,63 +69,143 @@ int parseCSV(const std::string &filePath, CrashRecord records[MAX_RECORDS])
     }
 
     std::string line;
-    while (std::getline(file, line) && recordCount < MAX_RECORDS)
+    int lineCount = 0;
+    while (std::getline(file, line) && recordCount < maxRecordsToRead)
     {
+        lineCount++;
+        if (lineCount <= startLine)
+            continue; // Skip lines before the start line
+
         std::stringstream ss(line);
-        std::string key, value;
-        std::string crashDate, crashTime, borough;
+        std::string crashDate, crashTime, borough, key, value;
         int zipCode = 0;
         double latitude = 0.0, longitude = 0.0;
 
-        // Read the first line (key-value pairs)
-        while (std::getline(ss, key, '\t') && std::getline(ss, value, '\t'))
+        // Check if the line has sufficient fields (5 columns minimum: crashDate, crashTime, borough, latitude, longitude)
+        if (std::count(line.begin(), line.end(), ',') < 4)
         {
-            // Convert values to appropriate data types
-            if (key == "CRASH DATE")
+            continue; // Skip invalid lines
+        }
+
+        // Parse the comma-separated line
+        std::getline(ss, crashDate, ',');
+        std::getline(ss, crashTime, ',');
+        std::getline(ss, borough, ',');
+
+        // Skip record if borough is null or empty
+        if (borough.empty())
+            continue;
+
+        // Parse the zip code field
+        std::getline(ss, key, ',');
+        std::getline(ss, value, ',');
+        if (!value.empty())
+        {
+            try
             {
-                crashDate = value;
+                zipCode = std::stoi(value); // Convert string to int (ZIP CODE)
             }
-            else if (key == "CRASH TIME")
+            catch (const std::invalid_argument &e)
             {
-                crashTime = value;
-            }
-            else if (key == "BOROUGH")
-            {
-                borough = value;
-            }
-            else if (key == "ZIP CODE")
-            {
-                zipCode = std::stoi(value); // Convert string to int
-            }
-            else if (key == "LATITUDE")
-            {
-                latitude = std::stod(value); // Convert string to double
-            }
-            else if (key == "LONGITUDE")
-            {
-                longitude = std::stod(value); // Convert string to double
+                std::cerr << "Invalid zip code: " << value << std::endl;
             }
         }
 
-        // Create a new CrashRecord and add it to the array
-        records[recordCount++] = CrashRecord(crashDate, crashTime, borough, zipCode, latitude, longitude);
+        // Parse the latitude field
+        std::getline(ss, value, ',');
+        if (!value.empty())
+        {
+            try
+            {
+                latitude = std::stod(value); // Convert string to double (LATITUDE)
+            }
+            catch (const std::invalid_argument &e)
+            {
+                std::cerr << "Invalid latitude: " << value << std::endl;
+            }
+        }
+
+        // Parse the longitude field
+        std::getline(ss, value, ',');
+        if (!value.empty())
+        {
+            try
+            {
+                longitude = std::stod(value); // Convert string to double (LONGITUDE)
+            }
+            catch (const std::invalid_argument &e)
+            {
+                // Clean and parse the longitude if it has parentheses
+                value = cleanCoordinate(value);
+                try
+                {
+                    longitude = std::stod(value); // Reattempt conversion after cleaning
+                }
+                catch (const std::invalid_argument &e)
+                {
+                    std::cerr << "Invalid longitude: " << value << std::endl;
+                }
+            }
+        }
+
+        // Debugging print to verify the data being parsed
+        std::cout << "Borough: " << borough << ", Latitude: " << latitude << ", Longitude: " << longitude << std::endl;
+
+        // Ensure that we are within bounds before adding a new record
+        if (recordCount < maxRecordsToRead)
+        {
+            records[recordCount++] = CrashRecord(crashDate, crashTime, borough, zipCode, latitude, longitude);
+        }
     }
 
     file.close();
     return recordCount; // Return the number of records read
 }
 
+// Search for records by Borough (case-insensitive, trimmed)
+void searchByBorough(const std::string &borough, CrashRecord records[], int recordCount)
+{
+    bool found = false;
+    int manhattanCount = 0;
+    std::string searchBorough = trim(borough); // Trim for case-insensitive comparison
+
+    for (int i = 0; i < recordCount; ++i)
+    {
+        if (trim(records[i].borough) == searchBorough)
+        { // Compare using trimmed strings
+            records[i].displayRecord();
+            manhattanCount++;
+        }
+    }
+
+    std::cout << "Total records found for borough " << borough << ": " << manhattanCount << std::endl;
+    if (!found)
+    {
+        std::cout << "No records found for borough: " << borough << std::endl;
+    }
+}
+
 int main()
 {
-    CrashRecord records[MAX_RECORDS];           // Array of CrashRecord objects
-    std::string filePath = "Motor_Vehicle.csv"; // Set your actual file path here
-    int recordCount = parseCSV(filePath, records);
+    CrashRecord records[MAX_RECORDS];                                                   // Array of CrashRecord objects
+    std::string filePath = "/Users/shruthishetti/Desktop/Mini-1/MotorVehicleCrash.csv"; // Set your actual file path here
 
-    // Display the first 5 records (for testing purposes)
-    for (int i = 0; i < 5 && i < recordCount; ++i)
-    {
-        records[i].displayRecord();
+    int recordCount = 0;
+    int startLine = 1; // Assuming first line is header
+
+    // Process chunks
+    for (int chunk = 0; chunk < 22; ++chunk)
+    { // Total of 2150478 records, divided into 22 chunks of 100,000 each
+        int chunkSize = (chunk == 21) ? 50478 : MAX_RECORDS;
+        recordCount += parseCSVChunk(filePath, records, startLine, chunkSize);
+        startLine += chunkSize;
+        std::cout << "Processed " << chunkSize << " records in this chunk." << chunk << "---------------------------" << std::endl;
     }
+
+    std::cout << "Total records read: " << recordCount << std::endl;
+
+    // Search for "MANHATTAN" in the processed records
+    searchByBorough("MANHATTAN", records, recordCount);
 
     return 0;
 }
