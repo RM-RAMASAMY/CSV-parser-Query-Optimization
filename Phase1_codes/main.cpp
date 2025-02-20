@@ -13,7 +13,7 @@ int main()
 {
      auto start1 = std::chrono::high_resolution_clock::now();
      // Path to the CSV file
-     std::string filename = "../Motor_Vehicle.csv";
+     std::string filename = "../../../Motor_Vehicle.csv";
 
      // Read the CSV file into a vector of Record objects
      std::vector<CrashRecord> records = readCSV(filename);
