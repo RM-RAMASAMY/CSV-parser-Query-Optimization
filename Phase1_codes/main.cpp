@@ -21,12 +21,11 @@ int main()
      auto duration1 = std::chrono::duration_cast<std::chrono::microseconds>(stop1 - start1);
      cout << "Time taken by csv reader function: "
           << duration1.count() << " microseconds" << endl;
+
      // Print the number of records read
      std::cout << "Number of records read: " << records.size() << std::endl;
+
      auto start2 = std::chrono::high_resolution_clock::now();
-     // cout << "enter the borough name to search: ";
-     // string borough;
-     // cin >> borough;
      // hardcoding the borough name for performance testing
      string borough = "BROOKLYN";
      searchByBorough(borough, records);
