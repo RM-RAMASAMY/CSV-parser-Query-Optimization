@@ -67,6 +67,7 @@ std::vector<CrashRecord> readCSV(const std::string &filename)
     // Skip the header line if there is one
     std::getline(file, line);
 
+#pragma omp parallel for num_threads(12)
     while (std::getline(file, line))
     {
         std::vector<std::string> tokens = splitLine(line);
@@ -118,8 +119,11 @@ std::vector<CrashRecord> readCSV(const std::string &filename)
         CntFct.push_back(tokens[28]);
         Vehicle vehicle(TypCde, CntFct);
 
-        // Create a Record object and add it to the vector
-        records.emplace_back(timestamp, place, people, vehicle, ColID);
+// Create a Record object and add it to the vector
+#pragma omp critical
+        {
+            records.emplace_back(timestamp, place, people, vehicle, ColID);
+        }
     }
 
     file.close();

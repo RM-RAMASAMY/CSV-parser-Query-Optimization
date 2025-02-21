@@ -11,7 +11,7 @@
 #include <chrono>
 #include <omp.h>
 
-int main()
+int main(int argc, char *argv[])
 {
      auto start1 = std::chrono::high_resolution_clock::now();
      // Path to the CSV file

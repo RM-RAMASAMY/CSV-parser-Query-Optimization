@@ -22,7 +22,8 @@ void searchByBorough(const std::string &borough, vector<CrashRecord> &records)
 {
     int recCount = 0;
     std::string searchBorough = trim(borough); // Trim for case-insensitive comparison
-#pragma omp parallel for reduction(+ : recCount)
+    int I = omp_get_num_threads();
+#pragma omp target teams distribute parallel for default(none) shared(I)
     for (int i = 0; i < records.size(); ++i)
     {
         if (trim(records[i].getPlace().getBorough()) == searchBorough)
