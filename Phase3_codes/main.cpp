@@ -1,75 +1,47 @@
-#ifndef RECORD_SEARCH_H
-#define RECORD_SEARCH_H
-
+#include <iostream>
+#include <vector>
 #include <string>
-#include <vector>
+#include "RecTimeStamp.h"
+#include "RecPlace.h"
+#include "RecPeople.h"
+#include "RecVehicle.h"
+#include "CrashRecord.h"
+#include "RecReader.h"
+#include "search.h"
+#include <chrono>
+#include <omp.h>
 
-class RecordSearch
+int main(int argc, char *argv[])
 {
-public:
-    virtual ~RecordSearch() = default;
-    virtual bool search(const std::string &criteria) const = 0;
-};
+     auto start1 = std::chrono::high_resolution_clock::now();
+     // Path to the CSV file
+     std::string filename = "../../../Motor_Vehicle.csv";
 
-class BrooklynSearch : public RecordSearch
-{
-public:
-    bool search(const std::string &criteria) const override;
-};
+     // Read the CSV file into a vector of Record objects
+     CrashRecord records = readCSV(filename);
+     auto stop1 = std::chrono::high_resolution_clock::now();
+     auto duration1 = std::chrono::duration_cast<std::chrono::microseconds>(stop1 - start1);
+     std::cout << "Time taken by csv reader function: "
+               << duration1.count() << " microseconds" << std::endl;
 
-class ManhattanSearch : public RecordSearch
-{
-public:
-    bool search(const std::string &criteria) const override;
-};
+     // Print the number of records read
+     std::cout << "Number of records read: " << records.count << std::endl
+               << std::endl;
+     int i = 0;
+     while (i < 10)
+     {
+          std::cout << "iteration: " << i << std::endl;
+          auto start2 = std::chrono::high_resolution_clock::now();
+          // Hardcoding the borough name for performance testing
+          std::string borough = "BROOKLYN";
+          records.getBoroughCount(borough);
+          auto stop2 = std::chrono::high_resolution_clock::now();
+          auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(stop2 - start2);
+          std::cout << "Time taken by search function: "
+                    << duration2.count() << " microseconds" << std::endl
+                    << std::endl;
+          ++i;
+     }
 
-// Add more subclasses for other boroughs as needed
-
-#endif // RECORD_SEARCH_H
-
-#include "record_search.h"
-#include <iostream>
-
-bool BrooklynSearch::search(const std::string &criteria) const
-{
-    // Implement search logic for Brooklyn
-    std::cout << "Searching in Brooklyn for criteria: " << criteria << std::endl;
-    // Example logic: return true if criteria matches some condition
-    return criteria == "BROOKLYN";
-}
-
-bool ManhattanSearch::search(const std::string &criteria) const
-{
-    // Implement search logic for Manhattan
-    std::cout << "Searching in Manhattan for criteria: " << criteria << std::endl;
-    // Example logic: return true if criteria matches some condition
-    return criteria == "MANHATTAN";
-}
-
-// Implement search logic for other boroughs as needed#include "record_search.h"
-#include <iostream>
-#include <memory>
-#include <vector>
-
-int main()
-{
-    std::vector<std::unique_ptr<RecordSearch>> searchers;
-    searchers.push_back(std::make_unique<BrooklynSearch>());
-    searchers.push_back(std::make_unique<ManhattanSearch>());
-    // Add more searchers for other boroughs as needed
-
-    std::string criteria;
-    std::cout << "Enter search criteria: ";
-    std::cin >> criteria;
-
-    for (const auto &searcher : searchers)
-    {
-        if (searcher->search(criteria))
-        {
-            std::cout << "Record found for criteria: " << criteria << std::endl;
-            break;
-        }
-    }
-
-    return 0;
+     return 0;
 }
