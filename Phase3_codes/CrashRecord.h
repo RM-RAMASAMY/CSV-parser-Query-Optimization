@@ -9,6 +9,8 @@
 #include "RecVehicle.h"
 #include <omp.h>
 
+using namespace std;
+
 std::string trim(const std::string &str)
 {
     if (str.empty())
@@ -19,8 +21,6 @@ std::string trim(const std::string &str)
     size_t last = str.find_last_not_of(" \t");
     return str.substr(first, (last - first + 1));
 }
-
-using namespace std;
 
 class CrashRecord
 {
