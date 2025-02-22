@@ -10,17 +10,18 @@
 #include "search.h"
 #include <chrono>
 #include <omp.h>
-
-int main(int argc, char *argv[])
+using namespace std;
+int main()
 {
      auto start1 = std::chrono::high_resolution_clock::now();
      // Path to the CSV file
-     std::string filename = "../../../Motor_Vehicle.csv";
+     std::string filename = "C:/Users/Ramro/OneDrive/Documents/Library/SJSU Semester 2 Material/CMPE-275 eNTERPRISE sOFTWARE aPPLICATIONS/Mini Project 1/Motor_Vehicle.csv";
 
      // Read the CSV file into a vector of Record objects
      CrashRecord records = readCSV(filename);
      auto stop1 = std::chrono::high_resolution_clock::now();
      auto duration1 = std::chrono::duration_cast<std::chrono::microseconds>(stop1 - start1);
+     std::cout << endl;
      std::cout << "Time taken by csv reader function: "
                << duration1.count() << " microseconds" << std::endl;
 
