@@ -34,7 +34,7 @@ int main()
           std::cout << "iteration: " << i << std::endl;
           auto start2 = std::chrono::high_resolution_clock::now();
           // Hardcoding the borough name for performance testing
-          std::string borough = "MANHATTAN";
+          std::string borough = "BROOKLYN";
           searchByBorough(borough, records);
           auto stop2 = std::chrono::high_resolution_clock::now();
           auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(stop2 - start2);
