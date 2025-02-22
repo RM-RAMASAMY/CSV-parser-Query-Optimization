@@ -13,7 +13,7 @@ int main()
 {
      auto start1 = std::chrono::high_resolution_clock::now();
      // Path to the CSV file
-     std::string filename = "../../../Motor_Vehicle.csv";
+     std::string filename = "../Motor_Vehicle.csv";
 
      // Read the CSV file into a vector of Record objects
      std::vector<CrashRecord> records = readCSV(filename);
@@ -24,14 +24,19 @@ int main()
 
      // Print the number of records read
      std::cout << "Number of records read: " << records.size() << std::endl;
-
-     auto start2 = std::chrono::high_resolution_clock::now();
-     // hardcoding the borough name for performance testing
-     string borough = "BROOKLYN";
-     searchByBorough(borough, records);
-     auto stop2 = std::chrono::high_resolution_clock::now();
-     auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(stop2 - start2);
-     cout << "Time taken by search function: "
-          << duration2.count() << " microseconds" << endl;
+     int i = 1;
+     while (i <= 10)
+     {
+          std::cout << "iteration: " << i << std::endl;
+          auto start2 = std::chrono::high_resolution_clock::now();
+          // hardcoding the borough name for performance testing
+          string borough = "BROOKLYN";
+          searchByBorough(borough, records);
+          auto stop2 = std::chrono::high_resolution_clock::now();
+          auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(stop2 - start2);
+          cout << "Time taken by search function: "
+               << duration2.count() << " microseconds" << endl;
+          ++i;
+     }
      return 0;
 }

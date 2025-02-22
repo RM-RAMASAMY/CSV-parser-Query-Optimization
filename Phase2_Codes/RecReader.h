@@ -73,8 +73,8 @@ std::vector<CrashRecord> readCSV(const std::string &filename)
 
     file.close();
 
-    // int num_threads = omp_get_max_threads();
-    int num_threads = 1;              // Specify the number of threads you want to use
+    int num_threads = omp_get_max_threads();
+    // int num_threads = 1;              // Specify the number of threads you want to use
     omp_set_num_threads(num_threads); // Set the number of threads
 
 #pragma omp parallel
