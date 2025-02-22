@@ -135,6 +135,12 @@ CrashRecord readCSV(const std::string &filename)
                 CntFct.push_back(tokens[27]);
                 CntFct.push_back(tokens[28]);
                 Vehicle vehicle(TypCde, CntFct);
+
+                local_record.times = timestamp;
+                local_record.places = place;
+                local_record.peoples = people;
+                local_record.vehicles = vehicle;
+                local_record.collisionIDs = ColID;
             }
             catch (const std::exception &e)
             {

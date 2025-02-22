@@ -15,7 +15,7 @@ int main()
 {
      auto start1 = std::chrono::high_resolution_clock::now();
      // Path to the CSV file
-     std::string filename = "C:/Users/Ramro/OneDrive/Documents/Library/SJSU Semester 2 Material/CMPE-275 eNTERPRISE sOFTWARE aPPLICATIONS/Mini Project 1/Motor_Vehicle.csv";
+     std::string filename = "../Motor_Vehicle.csv";
 
      // Read the CSV file into a vector of Record objects
      CrashRecord records = readCSV(filename);

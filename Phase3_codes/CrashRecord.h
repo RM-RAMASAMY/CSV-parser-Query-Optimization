@@ -24,6 +24,7 @@ std::string trim(const std::string &str)
 
 struct threadlocalcrashrecord
 {
+public:
     TimeStamp times;
     Place places;
     People peoples;
@@ -61,13 +62,14 @@ public:
     unsigned int getBoroughCount(string &borough)
     {
         unsigned int recCount = 0;
+
         std::string searchBorough = trim(borough); // Trim for case-insensitive comparison
         int num_threads = omp_get_max_threads();   // Specify the number of threads you want to use
 
         omp_set_num_threads(num_threads); // Set the number of threads
 #pragma omp parallel
         {
-            unsigned int local_recCount = 0;
+            int local_recCount = 0;
 
 #pragma omp for nowait
             for (size_t i = 0; i < places.size(); ++i)
@@ -77,8 +79,6 @@ public:
                     local_recCount++;
                 }
             }
-
-            std::cout << local_recCount << " ";
 
 #pragma omp critical
             {
