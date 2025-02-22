@@ -11,16 +11,17 @@
 #include <chrono>
 #include <omp.h>
 
-int main(int argc, char *argv[])
+int main()
 {
      auto start1 = std::chrono::high_resolution_clock::now();
      // Path to the CSV file
-     std::string filename = "../../../Motor_Vehicle.csv";
+     std::string filename = "C:/Users/Ramro/OneDrive/Documents/Library/SJSU Semester 2 Material/CMPE-275 eNTERPRISE sOFTWARE aPPLICATIONS/Mini Project 1/Motor_Vehicle.csv";
 
      // Read the CSV file into a vector of Record objects
      std::vector<CrashRecord> records = readCSV(filename);
      auto stop1 = std::chrono::high_resolution_clock::now();
      auto duration1 = std::chrono::duration_cast<std::chrono::microseconds>(stop1 - start1);
+     std::cout << endl;
      std::cout << "Time taken by csv reader function: "
                << duration1.count() << " microseconds" << std::endl;
 
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
           std::cout << "iteration: " << i << std::endl;
           auto start2 = std::chrono::high_resolution_clock::now();
           // Hardcoding the borough name for performance testing
-          std::string borough = "BROOKLYN";
+          std::string borough = "MANHATTAN";
           searchByBorough(borough, records);
           auto stop2 = std::chrono::high_resolution_clock::now();
           auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(stop2 - start2);

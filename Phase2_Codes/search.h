@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
+#include <omp.h>
 #include "CrashRecord.h"
 
 // Helper function to trim leading and trailing spaces
@@ -18,17 +20,30 @@ std::string trim(const std::string &str)
 }
 
 // Search for records by Borough (case-insensitive, trimmed)
-void searchByBorough(const std::string &borough, vector<CrashRecord> &records)
+void searchByBorough(const std::string &borough, std::vector<CrashRecord> &records)
 {
     int recCount = 0;
     std::string searchBorough = trim(borough); // Trim for case-insensitive comparison
-    int I = omp_get_num_threads();
-#pragma omp target teams distribute parallel for default(none) shared(I)
-    for (int i = 0; i < records.size(); ++i)
+    int num_threads = omp_get_max_threads();   // Specify the number of threads you want to use
+
+    omp_set_num_threads(num_threads); // Set the number of threads
+
+#pragma omp parallel
     {
-        if (trim(records[i].getPlace().getBorough()) == searchBorough)
-        { // Compare using trimmed strings
-            recCount++;
+        int local_recCount = 0;
+
+#pragma omp for nowait
+        for (int i = 0; i < records.size(); ++i)
+        {
+            if (trim(records[i].getPlace().getBorough()) == searchBorough)
+            { // Compare using trimmed strings
+                local_recCount++;
+            }
+        }
+
+#pragma omp critical
+        {
+            recCount += local_recCount; // Safely update global recCount
         }
     }
 
