@@ -1,4 +1,4 @@
-# MiniProject1 Achievements
+# CSV Parser & Query Optimization
 
 ### Overview
 This project focused on optimizing threading and memory utilization in C++ through structured phases. It aimed to enhance skills in performance-based multi-process computing.
