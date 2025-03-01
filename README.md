@@ -17,7 +17,6 @@ This project focused on optimizing threading and memory utilization in C++ throu
 The project successfully demonstrated the importance of threading and memory optimization in high-performance computing, providing a robust foundation for future research and development in multi-process computing.
 
 ### Source:
-Source: NYC Data: Motor Vehicle Collisions
-Size: Approx. 2.15M Rows (CSV)
-Ref: https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-
-Crashes/h9gi-nx95/about_data
+Source: NYC Data: Motor Vehicle Collisions <br>
+Size: Approx. 2.15M Rows (CSV) <br>
+Ref: https://data.cityofnewyork.us/Public-Safety/Motor-Vehicle-Collisions-Crashes/h9gi-nx95/about_data
